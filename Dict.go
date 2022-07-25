@@ -3,12 +3,26 @@ package dict
 import (
 	"fmt"
 	"github.com/lrita/cmap"
+	"github.com/mitchellh/mapstructure"
 	"reflect"
 	"sort"
 )
 
 type Dict struct {
 	mp cmap.Map[string, any]
+}
+
+func (d *Dict) String() string {
+	return fmt.Sprintf("%v", d.Map())
+}
+
+func (d *Dict) Map() map[string]any {
+	mp := map[string]any{}
+	keys := d.Keys()
+	for _, k := range keys {
+		mp[k] = d.Get(k)
+	}
+	return mp
 }
 
 func (d *Dict) Range(f func(key string, value any) bool) {
@@ -30,7 +44,7 @@ func (d *Dict) Keys() []string {
 	if d.IsEmpty() {
 		return nil
 	}
-	keys := make([]string, d.Len())
+	keys := make([]string, 0)
 	d.Range(func(key string, value any) bool {
 		keys = append(keys, key)
 		return true
@@ -143,18 +157,16 @@ func (d *Dict) GetBool(key string) bool {
 func NewDict() *Dict {
 	return &Dict{}
 }
-func NewDictWithMap(mp interface{}) *Dict {
+
+func NewDictWithObj(obj any) *Dict {
 	d := NewDict()
-	valOf := reflect.Indirect(reflect.ValueOf(mp))
-	if valOf.Kind() == reflect.Map {
-		keys := valOf.MapKeys()
-		for _, key := range keys {
-			if key.Kind() == reflect.String {
-				k := key.String()
-				v := valOf.MapIndex(key)
-				d.Set(k, v)
-			}
-		}
+	mp := map[string]any{}
+	err := mapstructure.Decode(obj, &mp)
+	if err != nil {
+		return d
+	}
+	for k, v := range mp {
+		d.Set(k, v)
 	}
 	return d
 }
