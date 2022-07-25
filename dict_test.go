@@ -11,6 +11,8 @@ func TestDict(t *testing.T) {
 	})
 	d.Set("b", "xxx")
 	d.Set("a", 22.343)
+	fmt.Println(d.GetString("a"))
+	fmt.Println(d.GetNumber("b"))
 	fmt.Println(d.GetAny("a"))
 }
 
