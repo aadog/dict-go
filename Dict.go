@@ -1,6 +1,7 @@
 package dict
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/lrita/cmap"
 	"github.com/mitchellh/mapstructure"
@@ -10,6 +11,27 @@ import (
 
 type Dict struct {
 	mp cmap.Map[string, any]
+}
+
+func (d *Dict) MarshalJSON() ([]byte, error) {
+	mp := d.Map()
+	data, err := json.Marshal(mp)
+	if err != nil {
+		return nil, err
+	}
+	return data, err
+}
+
+func (d *Dict) UnmarshalJSON(bytes []byte) error {
+	mp := map[string]any{}
+	err := json.Unmarshal(bytes, &mp)
+	if err != nil {
+		return err
+	}
+	for k, v := range mp {
+		d.mp.Store(k, v)
+	}
+	return nil
 }
 
 func (d *Dict) String() string {
