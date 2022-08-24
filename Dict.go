@@ -97,6 +97,9 @@ func (d *Dict) GetAny(key string) any {
 }
 func (d *Dict) GetString(key string) string {
 	v := d.GetAny(key)
+	if v == nil {
+		return ""
+	}
 	s, ok := v.(string)
 	if ok {
 		return s
