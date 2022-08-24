@@ -189,3 +189,31 @@ func (al *DictList) runlock() {
 		al.mtx.RUnlock()
 	}
 }
+
+func (al *DictList) Filter(cb func(v *Dict, index int) bool) *DictList {
+	newL := NewDictList()
+	for idx, dict := range al.Values() {
+		r := cb(dict, idx)
+		if r == true {
+			newL.pushBack(dict)
+		}
+	}
+	return newL
+}
+
+func (al *DictList) Find(cb func(v *Dict, index int) bool) *Dict {
+	for idx, dict := range al.Values() {
+		r := cb(dict, idx)
+		if r == true {
+			return dict
+		}
+	}
+	return nil
+}
+
+func (al *DictList) ForEach(cb func(v *Dict, index int)) *Dict {
+	for idx, dict := range al.Values() {
+		cb(dict, idx)
+	}
+	return nil
+}
