@@ -76,6 +76,15 @@ func (al *DictList) Get(i int) (v *Dict, ok bool) {
 	return al.get(i)
 }
 
+// Get ..
+func (al *DictList) MustGet(i int) *Dict {
+	al.rlock()
+	defer al.runlock()
+
+	d, _ := al.get(i)
+	return d
+}
+
 // Insert value v at index i
 func (al *DictList) Insert(i int, v *Dict) (ok bool) {
 	al.lock()

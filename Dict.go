@@ -34,6 +34,14 @@ func (d *Dict) UnmarshalJSON(bytes []byte) error {
 	return nil
 }
 
+func (d *Dict) JsonString() string {
+	b, err := json.Marshal(d)
+	if err != nil {
+		return ""
+	}
+	return fmt.Sprintf("%s", string(b))
+}
+
 func (d *Dict) String() string {
 	return fmt.Sprintf("%v", d.Map())
 }
@@ -117,6 +125,22 @@ func (d *Dict) GetAny(key string) any {
 	v, _ := d.Load(key)
 	return v
 }
+func (d *Dict) GetMap(key string) map[string]any {
+	v := d.GetAny(key)
+	if v == nil {
+		return nil
+	}
+	newD := NewDictWithObj(v)
+	return newD.Map()
+}
+func (d *Dict) GetDict(key string) *Dict {
+	v := d.GetAny(key)
+	if v == nil {
+		return nil
+	}
+	newD := NewDictWithObj(v)
+	return newD
+}
 func (d *Dict) GetString(key string) string {
 	v := d.GetAny(key)
 	if v == nil {
@@ -186,9 +210,18 @@ func NewDict() *Dict {
 func NewDictWithObj(obj any) *Dict {
 	d := NewDict()
 	mp := map[string]any{}
-	err := mapstructure.Decode(obj, &mp)
-	if err != nil {
-		return d
+	var err error
+	v := reflect.ValueOf(obj)
+	if v.Type().Kind() == reflect.String {
+		err = json.Unmarshal([]byte(obj.(string)), &mp)
+		if err != nil {
+			return d
+		}
+	} else {
+		err = mapstructure.Decode(obj, &mp)
+		if err != nil {
+			return d
+		}
 	}
 	for k, v := range mp {
 		d.Set(k, v)
