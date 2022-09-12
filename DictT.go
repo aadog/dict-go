@@ -1,9 +1,13 @@
-//go:build v && go1.18
-
 package dict
 
+import "reflect"
+
 func DictGetSlice[T any](dict *Dict, key string) []T {
-	v := d.GetAny(key)
+	var t T
+	if reflect.TypeOf(t) == reflect.TypeOf(Dict{}) {
+		return reflect.ValueOf(dict.GetDictSlice(key)).Interface().([]T)
+	}
+	v := dict.GetAny(key)
 	if v == nil {
 		return nil
 	}
@@ -13,7 +17,7 @@ func DictGetSlice[T any](dict *Dict, key string) []T {
 		return r
 	}
 	for i := 0; i < vf.Len(); i++ {
-		r = append(r, NewDictWithObj(vf.Index(i).Interface()))
+		r = append(r, vf.Index(i).Interface().(T))
 	}
 	return r
 }
