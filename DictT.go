@@ -4,7 +4,7 @@ import "reflect"
 
 func DictGetSlice[T any](dict *Dict, key string) []T {
 	var t T
-	if reflect.TypeOf(t) == reflect.TypeOf(Dict{}) {
+	if reflect.TypeOf(t) == reflect.TypeOf(&Dict{}) {
 		return reflect.ValueOf(dict.GetDictSlice(key)).Interface().([]T)
 	}
 	v := dict.GetAny(key)
