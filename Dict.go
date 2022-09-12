@@ -108,6 +108,7 @@ func (d *Dict) ValueOf(key string) reflect.Value {
 func (d *Dict) Del(key string) {
 	d.mp.Delete(key)
 }
+
 func (d *Dict) Len() int {
 	return d.mp.Count()
 }
@@ -140,6 +141,36 @@ func (d *Dict) GetDict(key string) *Dict {
 	}
 	newD := NewDictWithObj(v)
 	return newD
+}
+func (d *Dict) GetDictSlice(key string) []*Dict {
+	v := d.GetAny(key)
+	if v == nil {
+		return nil
+	}
+	r := make([]*Dict, 0)
+	vf := reflect.ValueOf(v)
+	if vf.Kind() != reflect.Slice {
+		return r
+	}
+	for i := 0; i < vf.Len(); i++ {
+		r = append(r, NewDictWithObj(vf.Index(i).Interface()))
+	}
+	return r
+}
+func (d *Dict) GetAnySlice(key string) []interface{} {
+	v := d.GetAny(key)
+	if v == nil {
+		return nil
+	}
+	r := make([]any, 0)
+	vf := reflect.ValueOf(v)
+	if vf.Kind() != reflect.Slice {
+		return r
+	}
+	for i := 0; i < vf.Len(); i++ {
+		r = append(r, NewDictWithObj(vf.Index(i).Interface()))
+	}
+	return r
 }
 func (d *Dict) GetString(key string) string {
 	v := d.GetAny(key)
